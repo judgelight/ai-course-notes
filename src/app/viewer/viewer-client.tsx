@@ -8,7 +8,10 @@ import remarkMath from 'remark-math'
 import rehypeRaw from 'rehype-raw'
 import rehypeHighlight from 'rehype-highlight'
 import rehypeKatex from 'rehype-katex'
+import remarkUnwrapImages from 'remark-unwrap-images'
 
+// 导入GitHub风格的Markdown CSS
+import 'github-markdown-css/github-markdown-light.css'
 import 'highlight.js/styles/github.css'
 import 'katex/dist/katex.min.css'
 
@@ -35,10 +38,10 @@ export default function Viewer() {
   return (
     <main className="max-w-4xl mx-auto px-4 py-10">
       <h1 className="text-3xl font-bold mb-6">📄 {file}</h1>
-      <article className="prose prose-lg max-w-none">
+      <article className="markdown-body prose prose-lg max-w-none">
         <ReactMarkdown
-          remarkPlugins={[remarkGfm, remarkMath]}
-          rehypePlugins={[rehypeRaw, rehypeHighlight, rehypeKatex]}
+          remarkPlugins={[remarkGfm, remarkMath, remarkUnwrapImages]}
+          rehypePlugins={[rehypeRaw, rehypeHighlight, [rehypeKatex, { output: 'htmlAndMathml' }]]}
         >
           {content}
         </ReactMarkdown>
