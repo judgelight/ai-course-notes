@@ -64,8 +64,9 @@ body {
   font-family: 'Inter', system-ui, sans-serif;
   padding: 20px;
   border-radius: 8px;
-  background-color: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background-color: var(--background);
+  color: var(--foreground);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 /* 确保LaTeX公式正确显示 */
@@ -97,8 +98,9 @@ body {
 .jupyter-notebook {
   padding: 20px;
   border-radius: 8px;
-  background-color: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background-color: var(--background);
+  color: var(--foreground);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 /* 代码容器样式 */
@@ -118,8 +120,22 @@ body {
 /* 暗色模式适配 */
 @media (prefers-color-scheme: dark) {
   .jupyter-notebook,
-  .code-container {
+  .code-container,
+  .markdown-body {
     background-color: #1e1e1e;
+    color: #ededed;
     box-shadow: 0 1px 3px rgba(255, 255, 255, 0.1);
+  }
+
+  .markdown-body pre,
+  .prose pre {
+    background-color: #1e1e1e;
+    color: #ededed;
+  }
+
+  .markdown-body code,
+  .prose code {
+    background-color: #2d2d2d;
+    color: #ededed;
   }
 }
