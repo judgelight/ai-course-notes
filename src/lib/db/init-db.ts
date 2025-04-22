@@ -6,7 +6,7 @@
 // src/lib/db/init-db.ts
 import { initDatabase } from './config';
 import { fileURLToPath, pathToFileURL } from 'url';
-import { dirname, join } from 'path';
+// 移除未使用的导入
 
 export async function initDb(): Promise<void> {
   try {

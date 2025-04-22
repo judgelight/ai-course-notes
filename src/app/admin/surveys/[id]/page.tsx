@@ -9,6 +9,16 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/AdminLayout';
 
+// 问题类型定义
+interface QuestionOption {
+  id: string;
+  text: {
+    zh: string;
+    ja: string;
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface Question {
   id: string;
   type: 'single_choice';
@@ -16,13 +26,7 @@ interface Question {
     zh: string;
     ja: string;
   };
-  options: Array<{
-    id: string;
-    text: {
-      zh: string;
-      ja: string;
-    };
-  }>;
+  options: Array<QuestionOption>;
   correct_option: string;
   explanation: {
     zh: string;
@@ -68,9 +72,14 @@ interface SurveyStats {
   submissions: Submission[];
 }
 
-export default function SurveyStatsPage({ params }: { params: { id: string } }) {
+// 组件参数类型定义
+interface SurveyStatsPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function SurveyStatsPage({ params }: SurveyStatsPageProps) {
   const router = useRouter();
-  const { id } = React.use(params as any) as { id: string };
+  const { id } = React.use(params);
   
   const [stats, setStats] = useState<SurveyStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -281,7 +290,7 @@ export default function SurveyStatsPage({ params }: { params: { id: string } }) 
                     <div className="space-y-2 mt-3">
                       {stats.submissions.length > 0 && question.optionCounts && (
                         Object.entries(question.optionCounts).map(([optionId, count]) => {
-                          const option = stats.questionStats[index].optionCounts[optionId];
+                          // 不需要使用option变量
                           const isCorrect = optionId === question.correctOption;
                           const percentage = stats.stats.total > 0 
                             ? (count / stats.stats.total * 100).toFixed(1) 
@@ -295,9 +304,9 @@ export default function SurveyStatsPage({ params }: { params: { id: string } }) 
                             // 获取问卷数据
                             const survey = JSON.parse(localStorage.getItem(`survey_${id}`) || '{}');
                             if (survey && survey.questions) {
-                              const q = survey.questions.find((q: any) => q.id === question.questionId);
+                              const q = survey.questions.find((q: { id: string }) => q.id === question.questionId);
                               if (q) {
-                                const opt = q.options.find((o: any) => o.id === optionId);
+                                const opt = q.options.find((o: { id: string }) => o.id === optionId);
                                 if (opt && opt.text) {
                                   optionText = opt.text[displayLanguage] || optionText;
                                 }

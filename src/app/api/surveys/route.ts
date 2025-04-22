@@ -3,13 +3,13 @@
  * 用于获取已发布的问卷列表
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db/config';
 
 /**
  * 获取已发布的问卷列表
  */
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export async function GET(): Promise<NextResponse> {
   try {
     const db = getDb();
     const surveys = await db.getSurveys(true); // 只获取已发布的问卷

@@ -12,9 +12,9 @@ import { generateClientId, calculateScore } from '@/lib/surveys/utils';
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
-  const { id } = params;
+  const { id } = await params;
   const db = getDb();
   
   try {

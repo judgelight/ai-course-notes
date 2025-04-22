@@ -74,7 +74,6 @@ export class DbUtils {
         throw new Error('SQLite文件路径未指定');
       }
       // 导入better-sqlite3需要在运行时进行，因为它是一个原生模块
-      // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
       const sqlite3 = require('better-sqlite3');
       this.db = new sqlite3(config.sqliteFile);
     } else if (this.type === 'turso') {
@@ -511,7 +510,7 @@ export class DbUtils {
       let optionCounts: Record<string, number>;
       try {
         optionCounts = JSON.parse(stat.option_counts);
-      } catch (error) {
+      } catch {
         optionCounts = {};
       }
       

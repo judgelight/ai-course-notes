@@ -12,10 +12,10 @@ import { getDb } from '@/lib/db/config';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   return adminAuthMiddleware(request, async () => {
-    const { id } = params;
+    const { id } = await params;
     const db = getDb();
     
     try {

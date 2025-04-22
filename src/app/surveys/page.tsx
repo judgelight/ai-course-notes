@@ -7,7 +7,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+// 移除未使用的导入
 import SurveyLayout from '@/components/SurveyLayout';
 
 type Lang = 'zh' | 'ja';
@@ -27,7 +27,7 @@ interface Survey {
 }
 
 export default function SurveysPage() {
-  const router = useRouter();
+  // 移除未使用的变量router
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');

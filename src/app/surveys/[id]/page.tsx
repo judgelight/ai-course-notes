@@ -59,9 +59,14 @@ interface SubmissionResult {
   }>;
 }
 
-export default function SurveyDetailPage({ params }: { params: { id: string } }) {
+// 组件参数类型定义
+interface SurveyDetailPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function SurveyDetailPage({ params }: SurveyDetailPageProps) {
   const router = useRouter();
-  const { id } = React.use(params as any) as { id: string };
+  const { id } = React.use(params);
   
   const [survey, setSurvey] = useState<Survey | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -202,9 +207,10 @@ export default function SurveyDetailPage({ params }: { params: { id: string } })
       
       // 滚动到顶部
       window.scrollTo(0, 0);
-    } catch (error: any) {
+    } catch (error) {
       console.error('提交答案失败:', error);
-      setError(error.message || (language === 'zh' ? '提交答案失败，请稍后重试' : '回答の提出に失敗しました。後でもう一度お試しください。'));
+      const errorMessage = error instanceof Error ? error.message : '';
+      setError(errorMessage || (language === 'zh' ? '提交答案失败，请稍后重试' : '回答の提出に失敗しました。後でもう一度お試しください。'));
     } finally {
       setIsSubmitting(false);
     }
