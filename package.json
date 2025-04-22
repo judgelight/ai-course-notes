@@ -10,6 +10,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@headlessui/react": "^2.2.2",
     "@tailwindcss/typography": "^0.5.16",
     "github-markdown-css": "^5.8.1",
     "highlight.js": "^11.11.1",
