@@ -18,11 +18,17 @@ const texts: Record<Lang, Record<string, string>> = {
     title: '人工智能课程笔记',
     clickToView: '点击查看 {label} 文件',
     download: '下载',
+    surveyTitle: '问卷系统',
+    surveyDesc: '参与课程问卷调查，测试你的知识',
+    goToSurvey: '前往问卷',
   },
   ja: {
     title: '人工知能コースノート',
     clickToView: '{label} ファイルを表示',
     download: 'ダウンロード',
+    surveyTitle: 'アンケートシステム',
+    surveyDesc: 'コースアンケートに参加して、あなたの知識をテストしましょう',
+    goToSurvey: 'アンケートへ',
   },
 }
 
@@ -96,7 +102,7 @@ export default function Home() {
       </div>
 
       <h1 className="text-4xl font-bold mb-8 text-center">{t.title}</h1>
-      <div className="grid gap-4">
+      <div className="grid gap-4 mb-8">
         {files.map((file, idx) => {
           const { icon, color, label } = getFileTypeInfo(file.type)
           const viewText = t.clickToView.replace('{label}', label)
@@ -126,6 +132,26 @@ export default function Home() {
             </div>
           )
         })}
+      </div>
+
+      {/* 问卷系统入口 */}
+      <div className="mt-12 p-6 rounded-lg border-2 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 shadow-sm">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-bold text-blue-700 dark:text-blue-400 mb-2">
+              {t.surveyTitle}
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-4 md:mb-0">
+              {t.surveyDesc}
+            </p>
+          </div>
+          <Link
+            href="/surveys"
+            className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+          >
+            {t.goToSurvey}
+          </Link>
+        </div>
       </div>
     </main>
   )

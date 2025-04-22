@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/docs
 /.pnp
 .pnp.*
 .yarn/*
@@ -39,3 +40,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.gitignore
+README-SURVEY.md
+data/surveys.db
+examples/sample-survey.json
