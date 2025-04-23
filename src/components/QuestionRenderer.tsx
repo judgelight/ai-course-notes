@@ -1,11 +1,16 @@
 /**
  * 问题渲染组件
  * 用于渲染问卷中的问题
+ * 支持LaTex数学公式渲染
+ * 支持公式悬浮放大功能
  */
 
 'use client'
 
-import React from 'react';
+import React, { useState } from 'react';
+import { parseLatexInText, containsLatex } from '@/lib/latex-utils';
+import FormulaPopover from './FormulaPopover';
+import 'katex/dist/katex.min.css';
 
 type Lang = 'zh' | 'ja';
 
@@ -51,9 +56,45 @@ export default function QuestionRenderer({
   showResult = false,
   disabled = false
 }: QuestionRendererProps) {
+  // 添加状态来跟踪悬停的选项和悬浮框位置
+  const [hoveredOption, setHoveredOption] = useState<string | null>(null);
+  const [popoverPosition, setPopoverPosition] = useState<{ x: number; y: number } | null>(null);
+  const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
+
   const handleOptionSelect = (optionId: string) => {
     if (disabled) return;
     onSelectOption(question.id, optionId);
+  };
+
+  // 鼠标进入选项时的处理函数
+  const handleMouseEnter = (optionId: string, optionText: string, event: React.MouseEvent) => {
+    // 清除之前的定时器
+    if (hoverTimeout) {
+      clearTimeout(hoverTimeout);
+    }
+    
+    // 只有当选项包含LaTex公式时才显示悬浮框
+    if (containsLatex(optionText)) {
+      // 添加小延迟，避免鼠标快速经过时频繁显示悬浮框
+      const timeout = setTimeout(() => {
+        setHoveredOption(optionId);
+        setPopoverPosition({ x: event.clientX, y: event.clientY });
+      }, 200);
+      
+      setHoverTimeout(timeout as unknown as NodeJS.Timeout);
+    }
+  };
+
+  // 鼠标离开选项时的处理函数
+  const handleMouseLeave = () => {
+    // 清除定时器
+    if (hoverTimeout) {
+      clearTimeout(hoverTimeout);
+      setHoverTimeout(null);
+    }
+    
+    setHoveredOption(null);
+    setPopoverPosition(null);
   };
 
   // 获取当前语言的内容
@@ -61,7 +102,7 @@ export default function QuestionRenderer({
   
   return (
     <div className="mb-8 p-4 border rounded-lg bg-white dark:bg-gray-800 shadow-sm">
-      <h3 className="text-lg font-semibold mb-3">{content}</h3>
+      <h3 className="text-lg font-semibold mb-3">{parseLatexInText(content)}</h3>
       
       <div className="space-y-2">
         {question.options.map((option) => {
@@ -85,11 +126,16 @@ export default function QuestionRenderer({
             optionClassName = optionClassName.replace("cursor-pointer", "cursor-default");
           }
           
+          // 获取选项文本
+          const optionText = option.text[language];
+          
           return (
             <div
               key={option.id}
               className={optionClassName}
               onClick={() => handleOptionSelect(option.id)}
+              onMouseEnter={(e) => handleMouseEnter(option.id, optionText, e)}
+              onMouseLeave={handleMouseLeave}
             >
               <div className="flex-1">
                 <div className="flex items-center">
@@ -108,7 +154,7 @@ export default function QuestionRenderer({
                       </span>
                     )}
                   </div>
-                  <div className="text-sm">{option.text[language]}</div>
+                  <div className="text-sm">{parseLatexInText(option.text[language])}</div>
                 </div>
               </div>
             </div>
@@ -123,9 +169,16 @@ export default function QuestionRenderer({
             {language === 'zh' ? '解析:' : '解説:'}
           </p>
           <p className="text-sm text-gray-700 dark:text-gray-300">
-            {question.explanation[language]}
+            {parseLatexInText(question.explanation[language])}
           </p>
         </div>
+      )}
+      {/* 悬浮放大框 */}
+      {hoveredOption && (
+        <FormulaPopover 
+          content={question.options.find(opt => opt.id === hoveredOption)?.text[language] || ''}
+          position={popoverPosition}
+        />
       )}
     </div>
   );

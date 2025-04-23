@@ -1,6 +1,7 @@
 /**
  * 问卷布局组件
  * 用于用户问卷页面的布局
+ * 支持LaTex数学公式渲染
  */
 
 'use client'
@@ -8,6 +9,7 @@
 import React from 'react';
 import Link from 'next/link';
 import LanguageSwitcher from './LanguageSwitcher';
+import 'katex/dist/katex.min.css';
 
 type Lang = 'zh' | 'ja';
 

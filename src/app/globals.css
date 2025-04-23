@@ -76,6 +76,28 @@ body {
   padding: 8px 0;
 }
 
+/* 公式悬浮放大框样式 */
+.formula-popover {
+  font-size: 1.5rem;
+  line-height: 1.8;
+}
+
+.formula-popover .latex-formula {
+  font-size: 1.5rem;
+}
+
+/* 增强公式在选项中的显示 */
+.formula-popover .katex {
+  font-size: 1.6em;
+}
+
+/* 确保公式悬浮框中的公式不会被截断 */
+.formula-popover .katex-display {
+  margin: 0.5em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
 /* 表格样式优化 */
 .markdown-body table {
   display: table;

@@ -75,7 +75,6 @@ export default function SurveyDetailPage({ params }: SurveyDetailPageProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<SubmissionResult | null>(null);
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [submissionLimitHours, setSubmissionLimitHours] = useState(1);
   
   // 默认使用中文
   const [language, setLanguage] = useState<Lang>('zh');
@@ -121,7 +120,6 @@ export default function SurveyDetailPage({ params }: SurveyDetailPageProps) {
         
         const data = await response.json();
         setHasSubmitted(data.hasSubmitted);
-        setSubmissionLimitHours(data.hours || 1);
       } catch (error) {
         console.error('检查提交记录失败:', error);
       }
@@ -267,8 +265,8 @@ export default function SurveyDetailPage({ params }: SurveyDetailPageProps) {
             {hasSubmitted && !result && (
               <div className="mb-6 p-4 bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400 rounded-md">
                 {t(
-                  `您已在过去 ${submissionLimitHours} 小时内提交过此问卷。您可以继续作答，但不会被记录。`,
-                  `過去 ${submissionLimitHours} 時間以内にこのアンケートを提出しました。引き続き回答できますが、記録されません。`
+                  `您已提交过此问卷。您可以继续作答，但不会被记录。`,
+                  `このアンケートを既に提出しています。引き続き回答できますが、記録されません。`
                 )}
               </div>
             )}

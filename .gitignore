@@ -2,7 +2,6 @@
 
 # dependencies
 /node_modules
-/docs
 /.pnp
 .pnp.*
 .yarn/*
@@ -10,6 +9,10 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+
+# documents
+/docs
+/examples
 
 # testing
 /coverage
