@@ -73,6 +73,27 @@ export default function Viewer() {
             <ReactMarkdown
               remarkPlugins={[remarkGfm, remarkMath, remarkUnwrapImages]}
               rehypePlugins={[rehypeRaw, rehypeHighlight, [rehypeKatex, { output: 'htmlAndMathml' }]]}
+              components={{
+                img: ({ ...props }) => {
+                  // 忽略特殊属性，只使用src属性渲染图片
+                  // 如果是外部图片（特别是s.ar8.top域名），使用代理API
+                  const src = props.src?.startsWith('https://s.ar8.top') 
+                    ? `/api/proxy?url=${encodeURIComponent(props.src)}`
+                    : props.src;
+                  
+                  // 清理alt文本，完全移除bg及其后面的属性
+                  const alt = props.alt?.replace(/bg.*?(\s|$)/g, '').trim() || '';
+                  
+                  return (
+                    <img 
+                      src={src} 
+                      alt={alt} 
+                      className="max-w-full h-auto"
+                      loading="lazy"
+                    />
+                  )
+                }
+              }}
             >
               {content}
             </ReactMarkdown>
