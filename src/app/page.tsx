@@ -4,10 +4,20 @@ import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Switch } from '@headlessui/react'
 
-interface FileEntry {
+type LessonFile = {
   name: string
   file: string
   type: string
+}
+
+type Lesson = {
+  lesson: number
+  titles: { zh?: string; ja?: string }
+  files: {
+    zh?: LessonFile
+    ja?: LessonFile
+    ipynb: LessonFile[]
+  }
 }
 
 type Lang = 'zh' | 'ja'
@@ -21,6 +31,11 @@ const texts: Record<Lang, Record<string, string>> = {
     surveyTitle: '问卷系统',
     surveyDesc: '参与课程问卷调查，测试你的知识',
     goToSurvey: '前往问卷',
+    lessonHas: '包含',
+    zh: '中文',
+    ja: '日文',
+    notebook: 'Notebook',
+    goToCourse: '查看课程',
   },
   ja: {
     title: '人工知能コースノート',
@@ -29,51 +44,40 @@ const texts: Record<Lang, Record<string, string>> = {
     surveyTitle: 'アンケートシステム',
     surveyDesc: 'コースアンケートに参加して、あなたの知識をテストしましょう',
     goToSurvey: 'アンケートへ',
+    lessonHas: '含む',
+    zh: '中文',
+    ja: '日本語',
+    notebook: 'ノートブック',
+    goToCourse: 'コースを見る',
   },
 }
 
-// 文件类型标签
-const fileTypeLabels: Record<Lang, Record<string, string>> = {
-  zh: { md: 'Markdown', ipynb: 'Jupyter Notebook', py: 'Python', default: '文件' },
-  ja: { md: 'マークダウン', ipynb: 'Jupyter ノートブック', py: 'Python', default: 'ファイル' },
-}
-
 export default function Home() {
-  const [files, setFiles] = useState<FileEntry[]>([])
+  const [lessons, setLessons] = useState<Lesson[]>([])
   const [lang, setLang] = useState<Lang>('zh')
 
-  // 读取文件列表
+  // 读取课程列表
   useEffect(() => {
-    fetch('/api/files')
+    fetch('/api/lessons')
       .then(res => res.json())
-      .then(setFiles)
-      .catch(() => setFiles([]))
+      .then(setLessons)
+      .catch(() => setLessons([]))
   }, [])
 
-  // 根据浏览器语言初始化
+  // 根据浏览器语言或本地存储初始化（优先使用用户上次选择）
   useEffect(() => {
-    if (typeof navigator !== 'undefined') {
-      const code = navigator.language.startsWith('ja') ? 'ja' : 'zh'
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('site_lang')
+      if (saved === 'ja' || saved === 'zh') {
+        setLang(saved)
+        return
+      }
+      const code = typeof navigator !== 'undefined' && navigator.language?.startsWith('ja') ? 'ja' : 'zh'
       setLang(code)
     }
   }, [])
 
   const t = texts[lang]
-
-  const getFileTypeInfo = (type: string) => {
-    const iconMap: Record<string, string> = {
-      md: '📄',
-      ipynb: '📊',
-      py: '🐍',
-    }
-    const colorMap: Record<string, string> = {
-      md: 'text-blue-600',
-      ipynb: 'text-orange-600',
-      py: 'text-green-600',
-    }
-    const label = fileTypeLabels[lang][type] || fileTypeLabels[lang].default
-    return { icon: iconMap[type] || '📄', color: colorMap[type] || 'text-gray-600', label }
-  }
 
   return (
     <main className="relative max-w-4xl mx-auto px-4 py-10">
@@ -84,7 +88,15 @@ export default function Home() {
         </span>
         <Switch
           checked={lang === 'ja'}
-          onChange={(checked: boolean) => setLang(checked ? 'ja' : 'zh')}
+          onChange={(checked: boolean) => {
+            const newLang = checked ? 'ja' : 'zh'
+            setLang(newLang)
+            try {
+              localStorage.setItem('site_lang', newLang)
+            } catch (e) {
+              // ignore storage errors
+            }
+          }}
           className={`${
             lang === 'ja' ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
           } relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
@@ -102,32 +114,46 @@ export default function Home() {
       </div>
 
       <h1 className="text-4xl font-bold mb-8 text-center">{t.title}</h1>
+
       <div className="grid gap-4 mb-8">
-        {files.map((file, idx) => {
-          const { icon, color, label } = getFileTypeInfo(file.type)
-          const viewText = t.clickToView.replace('{label}', label)
+        {lessons.map((lesson) => {
+          const title = lang === 'ja' ? lesson.titles.ja || lesson.titles.zh : lesson.titles.zh || lesson.titles.ja
+          const hasZh = !!lesson.files.zh
+          const hasJa = !!lesson.files.ja
+          const nbCount = lesson.files.ipynb?.length || 0
+
           return (
             <div
-              key={idx}
+              key={lesson.lesson}
               className="p-4 rounded-lg border shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition space-y-2"
             >
-              <Link
-                href={`/viewer?file=${encodeURIComponent(file.file)}`}
-                target="_blank"
-                className={`text-xl font-semibold ${color} hover:underline flex items-center gap-2`}
-              >
-                <span>{icon}</span>
-                <span>{file.name}</span>
-              </Link>
-              <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-4">
-                <span>{viewText}</span>
-                <a
-                  href={`/markdown/${encodeURIComponent(file.file)}`}
-                  download
-                  className="text-sm text-blue-500 hover:underline dark:text-blue-400"
+              <div className="flex items-center justify-between">
+                <Link
+                  href={`/lessons/${lesson.lesson}`}
+                  className="text-xl font-semibold text-gray-800 dark:text-gray-100 hover:underline flex items-center gap-2"
                 >
-                  {t.download}
-                </a>
+                  <span className="text-sm text-gray-500">第{lesson.lesson}课</span>
+                  <span>{title || `Lesson ${lesson.lesson}`}</span>
+                </Link>
+                <Link
+                  href={`/lessons/${lesson.lesson}`}
+                  className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700"
+                >
+                  {t.goToCourse}
+                </Link>
+              </div>
+
+              <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-4">
+                <span>
+                  {t.lessonHas}:
+                  {hasZh && <span className="ml-2 px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">{t.zh}</span>}
+                  {hasJa && <span className="ml-2 px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">{t.ja}</span>}
+                  {nbCount > 0 && (
+                    <span className="ml-2 px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">
+                      {t.notebook} x{nbCount}
+                    </span>
+                  )}
+                </span>
               </div>
             </div>
           )
